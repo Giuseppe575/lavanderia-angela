@@ -2,29 +2,21 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lavanderia Angela • Prenotazione consegna</title>
 
-  <!-- 1) Bootstrap -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet">
-  <!-- 2) Font Awesome -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    rel="stylesheet">
-  <!-- 3) Google Font Montserrat -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
-    rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- Google Font Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- 4) Tuoi stili custom -->
   <style>
     body {
-      margin: 0;
-      padding: 2rem;
-      background: #f0f9ff;
       font-family: 'Montserrat', sans-serif;
+      background: #f0f9ff;
+      padding: 2rem;
     }
     header {
       background: #0d6efd;
@@ -36,11 +28,11 @@
     }
     .card-form {
       background: #fff;
-      max-width: 600px;
-      margin: 0 auto;
       padding: 2rem;
       border-radius: .5rem;
       box-shadow: 0 4px 10px rgba(0,0,0,.06);
+      max-width: 600px;
+      margin: 0 auto;
     }
     .mb-4 { margin-bottom: 1.5rem !important; }
   </style>
@@ -54,27 +46,17 @@
 
   <div class="card-form">
     <form id="frmBooking"
-          method="post"
           action="https://script.google.com/macros/s/AKfycbyLFz7CaH4-5kB_VUe1g9zlXq1vc2oWOQ-JBZth1s9vx7-aIWiwC_R5uNENVl-gvrZyQg/exec"
-          target="hidden_iframe">
-
+          method="POST">
       <div class="mb-4">
-        <label for="nome" class="form-label">Nome cliente</label>
-        <input type="text"
-               id="nome"
-               name="nome"
-               class="form-control"
-               placeholder="Mario Rossi"
-               required>
+        <label class="form-label" for="nome">Nome cliente</label>
+        <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
       </div>
 
       <div class="mb-4">
-        <label for="articolo" class="form-label">Articolo</label>
-        <select id="articolo"
-                name="articolo"
-                class="form-select"
-                required>
-          <option value="" disabled selected>Seleziona…</option>
+        <label class="form-label" for="articolo">Articolo</label>
+        <select id="articolo" name="articolo" class="form-select" required>
+          <option value="" disabled selected>Scegli…</option>
           <option value="Piumone">Piumone</option>
           <option value="Cappotto">Cappotto</option>
           <option value="Tovaglia">Tovaglia</option>
@@ -83,29 +65,41 @@
       </div>
 
       <div class="mb-4">
-        <label for="data" class="form-label">Data consegna</label>
-        <input type="date"
-               id="data"
-               name="data"
-               class="form-control"
-               required>
+        <label class="form-label" for="data">Data consegna</label>
+        <input type="date" id="data" name="data" class="form-control" required>
       </div>
 
-      <button type="submit"
-              class="btn btn-primary w-100 py-2">
+      <button type="submit" class="btn btn-primary w-100 py-2">
         <i class="fa-solid fa-calendar-check"></i> Prenota
       </button>
     </form>
   </div>
 
-  <!-- iframe invisibile che cattura la risposta -->
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
-
-  <!-- al completamento del POST mostro un alert e resetto il form -->
   <script>
-    document.getElementsByName('hidden_iframe')[0].addEventListener('load', () => {
-      alert('✅ Prenotazione registrata con successo!');
-      document.getElementById('frmBooking').reset();
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('frmBooking');
+      form.addEventListener('submit', e => {
+        e.preventDefault();                  // blocca invio normale
+        const data = new FormData(form);    // raccogli name=... dal form
+
+        fetch(form.action, {                // POST al tuo script
+          method: 'POST',
+          body: new URLSearchParams(data)    // application/x-www-form-urlencoded
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.result === 'success') {
+            alert('✅ Prenotazione registrata!');
+            form.reset();
+          } else {
+            alert('❌ Errore nella prenotazione. Riprovare.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('❌ Impossibile contattare il server, riprova più tardi.');
+        });
+      });
     });
   </script>
 

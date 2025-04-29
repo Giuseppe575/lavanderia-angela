@@ -5,18 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lavanderia Angela • Prenotazione consegna</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <!-- Google Font Montserrat -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- 1) Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet">
 
+  <!-- 2) Font Awesome -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    rel="stylesheet">
+
+  <!-- 3) Google Font Montserrat -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <!-- 4) I TUOI OVERRIDE (dopo Bootstrap) -->
   <style>
     body {
-      font-family: 'Montserrat', sans-serif;
-      background: #f0f9ff;
-      padding: 2rem;
+      font-family: 'Montserrat', sans-serif !important;
+      background-color: #f0f9ff !important;
+      padding: 2rem !important;
+      margin: 0; /* reset browser margin */
     }
     header {
       background: #0d6efd;
@@ -46,18 +56,27 @@
 
   <div class="card-form">
     <form id="frmBooking"
-          action="https://script.google.com/macros/s/AKfycbyw4LFu1-_IVR1hhFcIhrfWsyOi6qfnKvigvIKmBjxk8oHwyfehQk3e-UCb5v9UXn39KA/exec"
+          action="https://script.google.com/macros/s/AKfycbxe8HgWkMQZYRx5gwm_pc4GhpRGn0dyZf--6Axodi6o_lto5yVSGtfj-RQVL9y1dYMPfw/exec"
           method="post"
-          target="hidden_iframe">
+          target="hidden_iframe"
+          onsubmit="console.log('🔔 form submit scattato');">
       
       <div class="mb-4">
         <label class="form-label" for="nome">Nome cliente</label>
-        <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
+        <input type="text"
+               id="nome"
+               name="nome"
+               class="form-control"
+               placeholder="Mario Rossi"
+               required>
       </div>
 
       <div class="mb-4">
         <label class="form-label" for="articolo">Articolo</label>
-        <select id="articolo" name="articolo" class="form-select" required>
+        <select id="articolo"
+                name="articolo"
+                class="form-select"
+                required>
           <option value="" disabled selected>Scegli…</option>
           <option value="Piumone">Piumone</option>
           <option value="Cappotto">Cappotto</option>
@@ -68,47 +87,28 @@
 
       <div class="mb-4">
         <label class="form-label" for="data">Data consegna</label>
-        <input type="date" id="data" name="data" class="form-control" required>
+        <input type="date"
+               id="data"
+               name="data"
+               class="form-control"
+               required>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100 py-2">
+      <button type="submit"
+              class="btn btn-primary w-100 py-2">
         <i class="fa-solid fa-calendar-check"></i> Prenota
       </button>
     </form>
   </div>
 
-  <!-- iframe nascosto per invio form -->
+  <!-- iframe invisibile che cattura la risposta -->
   <iframe name="hidden_iframe" style="display:none;"></iframe>
 
-  <!-- Script per serializzare in JSON e gestire il submit tramite iframe -->
+  <!-- alert di conferma dopo submit -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('frmBooking');
-
-      // 1) Aggiungo un campo hidden per il payload JSON
-      const payloadInput = document.createElement('input');
-      payloadInput.type = 'hidden';
-      payloadInput.name = 'payload';
-      payloadInput.id   = 'payload';
-      form.appendChild(payloadInput);
-
-      // 2) Prima del submit serializzo i valori in JSON
-      form.addEventListener('submit', e => {
-        const p = {
-          nome:     form.querySelector('#nome').value.trim(),
-          articolo: form.querySelector('#articolo').value,
-          data:     form.querySelector('#data').value
-        };
-        payloadInput.value = JSON.stringify(p);
-        // al termine di questo, il browser invia il form al Web App dentro l'iframe
-      });
-
-      // 3) Quando l'iframe riceve la risposta, mostro un alert e resetto
-      const iframe = window.frames['hidden_iframe'];
-      iframe.onload = () => {
-        alert('✅ Prenotazione inviata correttamente!');
-        form.reset();
-      };
+    document.getElementsByName('hidden_iframe')[0].addEventListener('load', () => {
+      alert('✅ Prenotazione registrata con successo!');
+      document.getElementById('frmBooking').reset();
     });
   </script>
 

@@ -3,83 +3,366 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lavanderia Angela • Prenotazione consegna</title>
+  <title>Lavanderia Angela • Animazione & Prenotazione</title>
+
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <!-- Google Font Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- P5.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+
   <style>
-    body { font-family:'Montserrat',sans-serif; background:#f0f9ff; padding:2rem; }
-    header { background:#0d6efd; color:#fff; padding:2rem; border-radius:.5rem; text-align:center; margin-bottom:2rem; }
-    .card-form { background:#fff; padding:2rem; border-radius:.5rem; box-shadow:0 4px 10px rgba(0,0,0,.06); max-width:600px; margin:0 auto; }
-    .mb-4 { margin-bottom:1.5rem !important; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0d6efd;
+      padding: 2rem;
+      color: #495057;
+    }
+
+    #p5-canvas-container {
+      margin-bottom: 2rem;
+      text-align: center;
+      background-color: #f0f0f0;
+      padding: 1rem 0;
+      border-radius: .5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card-form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: .5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .mb-4 {
+      margin-bottom: 1.5rem !important;
+    }
+    /* Spacing adjustment for item rows */
+    .item-row {
+        margin-bottom: 0.75rem !important; /* Less space between item rows */
+    }
+    .remove-item-btn {
+        padding: 0.3rem 0.6rem; /* Smaller remove button */
+        line-height: 1;
+    }
+    /* Align remove button column */
+    .col-remove-btn {
+        display: flex;
+        align-items: flex-end; /* Align button to bottom */
+        padding-bottom: 0.375rem; /* Align with input bottom padding */
+    }
+
+    .form-title {
+        color: #212529;
+    }
+
   </style>
 </head>
 <body>
 
-  <header>
-    <h1><i class="fa-solid fa-soap"></i> Lavanderia Angela</h1>
-    <p class="lead mb-0">Prenotazione consegna biancheria</p>
-  </header>
+  <!-- P5.js Canvas Container -->
+  <div id="p5-canvas-container">
+    <!-- Canvas will be inserted here by P5.js -->
+  </div>
 
+  <!-- Booking Form Section -->
   <div class="card-form">
+    <h2 class="text-center mb-4 form-title">Prenotazione consegna biancheria</h2>
     <form id="frmBooking"
           action="https://script.google.com/macros/s/AKfycbz-nO8TEe1fxVuQtgOSWjzMj4eTZJz2Jw2Y9n9H6iHCl72fJReb6_qSFjrbfS4vG4aXOg/exec"
           method="post">
-      <!-- campo nascosto per il JSON -->
+      <!-- Hidden field for JSON payload -->
       <input type="hidden" id="payload" name="payload">
 
+      <!-- Nome Cliente -->
       <div class="mb-4">
         <label class="form-label" for="nome">Nome cliente</label>
         <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
       </div>
 
+      <!-- Contatti -->
       <div class="mb-4">
-        <label class="form-label" for="articolo">Articolo</label>
-        <select id="articolo" name="articolo" class="form-select" required>
-          <option value="" disabled selected>Scegli…</option>
-          <option>Piumone</option>
-          <option>Cappotto</option>
-          <option>Tovaglia</option>
-          <option>Lenzuola</option>
-        </select>
+        <label class="form-label">Contatti (inserisci almeno E-mail o Telefono)</label>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label for="email" class="visually-hidden">E-mail</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="nome@esempio.com">
+          </div>
+          <div class="col-md-6">
+             <label for="telefono" class="visually-hidden">Telefono</label>
+            <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="+39 345 1234567">
+             <!-- Basic pattern example - adjust if needed -->
+             <!-- pattern="(\+?\d{1,3})?\s?(\d{3})\s?(\d{3})\s?(\d{4})" -->
+          </div>
+        </div>
+        <!-- Simple validation message area -->
+        <div id="contatti-error" class="text-danger mt-1" style="display: none; font-size: 0.875em;">
+          È necessario inserire almeno un'E-mail o un Telefono.
+        </div>
       </div>
 
+      <!-- Consenso Privacy -->
+       <div class="mb-4 form-check">
+        <input type="checkbox" class="form-check-input" id="privacy" name="privacy" required>
+        <label class="form-check-label" for="privacy">
+          Acconsento al trattamento dei miei dati personali secondo la
+          <!-- Replace '#' with your actual privacy policy URL -->
+          <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </label>
+      </div>
+
+      <!-- Articoli e Quantità -->
+      <div class="mb-4">
+          <label class="form-label">Articoli e quantità</label>
+          <div id="items-container">
+              <!-- Initial Item Row (template) -->
+              <div class="row g-2 item-row">
+                  <div class="col-7">
+                      <label for="articolo-1" class="visually-hidden">Articolo</label>
+                      <select id="articolo-1" name="articolo[]" class="form-select articolo-select" required>
+                          <option value="" disabled selected>Scegli articolo…</option>
+                          <option>Piumone</option>
+                          <option>Cappotto</option>
+                          <option>Tovaglia</option>
+                          <option>Lenzuola</option>
+                          <option>Camicia</option>
+                          <option>Pantalone</option>
+                          <option>Altro</option>
+                      </select>
+                  </div>
+                  <div class="col-3">
+                      <label for="quantita-1" class="visually-hidden">Quantità</label>
+                      <input type="number" id="quantita-1" name="quantita[]" class="form-control quantita-input" placeholder="Q.tà" required min="1" value="1">
+                  </div>
+                   <div class="col-2 col-remove-btn">
+                      <!-- Remove button added dynamically for subsequent rows -->
+                   </div>
+              </div>
+              <!-- More item rows will be added here -->
+          </div>
+          <button type="button" id="add-item-btn" class="btn btn-secondary btn-sm mt-2">
+              <i class="fa-solid fa-plus"></i> Aggiungi un altro articolo
+          </button>
+      </div>
+
+
+      <!-- Data Consegna -->
       <div class="mb-4">
         <label class="form-label" for="data">Data consegna</label>
         <input type="date" id="data" name="data" class="form-control" required>
       </div>
 
+      <!-- Note -->
+      <div class="mb-4">
+        <label class="form-label" for="note">Note (Opzionale)</label>
+        <textarea id="note" name="note" class="form-control" rows="2" placeholder="Es: ritiro urgente, specificare 'Altro' articolo, preferenze..."></textarea>
+      </div>
+
+      <!-- Submit Button -->
       <button type="submit" class="btn btn-primary w-100 py-2">
         <i class="fa-solid fa-calendar-check"></i> Prenota
       </button>
     </form>
   </div>
 
+  <!-- Combined JavaScript -->
   <script>
-    document.getElementById('frmBooking').addEventListener('submit', e => {
+    // --- Dynamic Item Handling ---
+    const itemsContainer = document.getElementById('items-container');
+    const addItemBtn = document.getElementById('add-item-btn');
+    let itemCounter = 1; // To keep IDs unique if needed
+
+    // Function to add remove button
+    function addRemoveButton(row) {
+        const removeCol = row.querySelector('.col-remove-btn');
+        if (removeCol) { // Check if the column exists
+             const removeBtn = document.createElement('button');
+             removeBtn.type = 'button';
+             removeBtn.innerHTML = '<i class="fa-solid fa-trash-alt"></i>'; // Use Font Awesome icon
+             removeBtn.className = 'btn btn-danger btn-sm remove-item-btn';
+             removeBtn.setAttribute('aria-label', 'Rimuovi articolo');
+             removeBtn.addEventListener('click', () => {
+                 row.remove();
+             });
+             removeCol.appendChild(removeBtn);
+        }
+    }
+
+    // Add new item row
+    addItemBtn.addEventListener('click', () => {
+      itemCounter++;
+      const firstItemRow = itemsContainer.querySelector('.item-row');
+      const newItemRow = firstItemRow.cloneNode(true);
+
+      // Clear values and update IDs/names in the cloned row
+      const newSelect = newItemRow.querySelector('.articolo-select');
+      const newQuantity = newItemRow.querySelector('.quantita-input');
+
+      newSelect.id = `articolo-${itemCounter}`;
+      newSelect.value = ''; // Reset selection
+      newSelect.selectedIndex = 0; // Ensure placeholder is selected
+
+      newQuantity.id = `quantita-${itemCounter}`;
+      newQuantity.value = '1'; // Reset quantity to 1
+
+      // Ensure labels point to new IDs (if they weren't visually hidden)
+      // newItemRow.querySelector('label[for^="articolo"]').setAttribute('for', newSelect.id);
+      // newItemRow.querySelector('label[for^="quantita"]').setAttribute('for', newQuantity.id);
+
+      // Add the remove button to the new row
+      addRemoveButton(newItemRow);
+
+      itemsContainer.appendChild(newItemRow);
+    });
+
+    // --- Form Submission Logic ---
+    const frmBooking = document.getElementById('frmBooking');
+    const emailInput = document.getElementById('email');
+    const telefonoInput = document.getElementById('telefono');
+    const contattiError = document.getElementById('contatti-error');
+
+    frmBooking.addEventListener('submit', e => {
+      // 1. Client-side Validation: Check contacts
+      const emailValue = emailInput.value.trim();
+      const telefonoValue = telefonoInput.value.trim();
+      if (!emailValue && !telefonoValue) {
+        e.preventDefault(); // Stop submission
+        contattiError.style.display = 'block'; // Show error message
+        // Optionally focus the first empty field
+        if (!emailValue) emailInput.focus();
+        else telefonoInput.focus();
+        return; // Exit handler
+      } else {
+        contattiError.style.display = 'none'; // Hide error if previously shown
+      }
+
+      // 2. Prevent default only if validation passed *and* we are building payload
       e.preventDefault();
-      // Costruisci il JSON col payload
+
+      // 3. Build the JSON payload
+      const articoli = [];
+      const itemRows = itemsContainer.querySelectorAll('.item-row');
+      itemRows.forEach(row => {
+        const articoloSelect = row.querySelector('.articolo-select');
+        const quantitaInput = row.querySelector('.quantita-input');
+        if (articoloSelect.value && quantitaInput.value) {
+           // Convert quantity to number, default to 1 if invalid somehow
+           const quantity = parseInt(quantitaInput.value, 10) || 1;
+           articoli.push({
+             articolo: articoloSelect.value,
+             quantita: quantity > 0 ? quantity : 1 // Ensure positive quantity
+           });
+        }
+      });
+
       const p = {
         nome:     document.getElementById('nome').value.trim(),
-        articolo: document.getElementById('articolo').value,
-        data:     document.getElementById('data').value
+        email:    emailValue, // Use validated value
+        telefono: telefonoValue, // Use validated value
+        privacy:  document.getElementById('privacy').checked, // Include privacy consent
+        articoli: articoli, // Array of items
+        data:     document.getElementById('data').value,
+        note:     document.getElementById('note').value.trim()
       };
-      // Mettilo nell’input nascosto
+
+      // 4. Put JSON in the hidden input
       document.getElementById('payload').value = JSON.stringify(p);
-      // E poi invia il form
+
+      // 5. Submit the form programmatically
+      // Log payload for debugging before submit
+      console.log("Payload:", document.getElementById('payload').value);
       e.target.submit();
     });
 
-    // Ricevi risposta dalla web-app e mostra alert
+    // Function to reset the form, including dynamic items
+    function resetForm() {
+        frmBooking.reset(); // Reset standard fields
+        contattiError.style.display = 'none'; // Hide contact error
+
+        // Remove all item rows except the first one
+        const allItemRows = itemsContainer.querySelectorAll('.item-row');
+        for (let i = allItemRows.length - 1; i > 0; i--) {
+            allItemRows[i].remove();
+        }
+
+        // Reset the first item row explicitly
+        const firstRow = itemsContainer.querySelector('.item-row');
+        if (firstRow) {
+            firstRow.querySelector('.articolo-select').selectedIndex = 0;
+            firstRow.querySelector('.quantita-input').value = '1';
+            // Remove its remove button if it somehow got one (shouldn't happen with current logic)
+            const firstRemoveBtn = firstRow.querySelector('.remove-item-btn');
+            if (firstRemoveBtn) firstRemoveBtn.remove();
+        }
+        itemCounter = 1; // Reset counter
+    }
+
+
+    // --- Receive response from web-app ---
     window.addEventListener('message', evt => {
       if (evt.data && evt.data.result === 'success') {
-        alert('✅ Prenotazione registrata!');
-        document.getElementById('frmBooking').reset();
+        alert('✅ Prenotazione registrata con successo!');
+        resetForm(); // Use the enhanced reset function
+      } else if (evt.data && evt.data.result === 'error') {
+         alert('⚠️ Si è verificato un errore durante la registrazione della prenotazione: ' + (evt.data.message || 'Dettagli non disponibili.'));
+         console.error("Error from Google Apps Script:", evt.data.message);
       }
     });
+
+
+    // --- P5.js Sketch Logic (Unchanged) ---
+    let particles = [];
+    const numParticles = 50;
+    let baseColor1 = [255, 204, 0]; // Gold
+    let baseColor2 = [13, 110, 253]; // Bootstrap primary blue
+    let baseColor3 = [108, 117, 125]; // Bootstrap secondary grey
+    let canvasBackgroundColor = [240, 240, 240];
+
+    function setup() {
+      let canvas = createCanvas(600, 150);
+      canvas.parent('p5-canvas-container');
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle(width * 0.2, height / 2));
+      }
+      noStroke();
+    }
+
+    function draw() {
+      background(canvasBackgroundColor);
+      for (let particle of particles) {
+        particle.update();
+        particle.display();
+      }
+      textFont('Montserrat');
+      textAlign(CENTER, CENTER);
+      textSize(40); fill(baseColor1);
+      text("Angela", width * 0.6, height * 0.35);
+      textSize(16); fill(baseColor2);
+      text("LAVANDERIA", width * 0.6, height * 0.6);
+      textSize(10); fill(baseColor3);
+      textAlign(LEFT, TOP);
+      text("- Lavaggio ad acqua\n- Lavaggio a secco\n- Stiratura", width * 0.55, height * 0.75);
+    }
+
+    class Particle { /* ... (Particle class remains the same) ... */
+      constructor(x, y) { this.pos = createVector(x, y); this.angle = random(TWO_PI); this.radius = random(15, 40); this.speed = random(0.01, 0.03); this.size = random(4, 8); this.randomizeColor(); }
+      update() { this.angle += this.speed; this.pos.x = width * 0.2 + cos(this.angle) * this.radius; this.pos.y = height / 2 + sin(this.angle) * this.radius; }
+      display() { fill(this.color); ellipse(this.pos.x, this.pos.y, this.size, this.size); }
+      randomizeColor() { let rand = floor(random(3)); if (rand == 0) { this.color = color(baseColor1[0], baseColor1[1], baseColor1[2], 180); } else if (rand == 1) { this.color = color(baseColor2[0], baseColor2[1], baseColor2[2], 180); } else { this.color = color(baseColor3[0], baseColor3[1], baseColor3[2], 180); } }
+    }
+
+    let canvasContainer = document.getElementById('p5-canvas-container');
+    if (canvasContainer) { canvasContainer.addEventListener('mousemove', () => { for (let particle of particles) { particle.randomizeColor(); } }); }
+
   </script>
 
 </body>

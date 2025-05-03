@@ -10,12 +10,13 @@
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <!-- Google Font Montserrat -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet"> <!-- Added 700 weight for bold -->
   <!-- P5.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
 
   <style>
     body {
+      /* Ensure Montserrat is loaded with bold weight if using textStyle(BOLD) */
       font-family: 'Montserrat', sans-serif;
       background: #0d6efd;
       padding: 2rem;
@@ -46,19 +47,17 @@
     .mb-4 {
       margin-bottom: 1.5rem !important;
     }
-    /* Spacing adjustment for item rows */
     .item-row {
-        margin-bottom: 0.75rem !important; /* Less space between item rows */
+        margin-bottom: 0.75rem !important;
     }
     .remove-item-btn {
-        padding: 0.3rem 0.6rem; /* Smaller remove button */
+        padding: 0.3rem 0.6rem;
         line-height: 1;
     }
-    /* Align remove button column */
     .col-remove-btn {
         display: flex;
-        align-items: flex-end; /* Align button to bottom */
-        padding-bottom: 0.375rem; /* Align with input bottom padding */
+        align-items: flex-end;
+        padding-bottom: 0.375rem;
     }
 
     .form-title {
@@ -80,16 +79,13 @@
     <form id="frmBooking"
           action="https://script.google.com/macros/s/AKfycbz-nO8TEe1fxVuQtgOSWjzMj4eTZJz2Jw2Y9n9H6iHCl72fJReb6_qSFjrbfS4vG4aXOg/exec"
           method="post">
-      <!-- Hidden field for JSON payload -->
       <input type="hidden" id="payload" name="payload">
 
-      <!-- Nome Cliente -->
       <div class="mb-4">
         <label class="form-label" for="nome">Nome cliente</label>
         <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
       </div>
 
-      <!-- Contatti -->
       <div class="mb-4">
         <label class="form-label">Contatti (inserisci almeno E-mail o Telefono)</label>
         <div class="row g-2">
@@ -100,31 +96,24 @@
           <div class="col-md-6">
              <label for="telefono" class="visually-hidden">Telefono</label>
             <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="+39 345 1234567">
-             <!-- Basic pattern example - adjust if needed -->
-             <!-- pattern="(\+?\d{1,3})?\s?(\d{3})\s?(\d{3})\s?(\d{4})" -->
           </div>
         </div>
-        <!-- Simple validation message area -->
         <div id="contatti-error" class="text-danger mt-1" style="display: none; font-size: 0.875em;">
           È necessario inserire almeno un'E-mail o un Telefono.
         </div>
       </div>
 
-      <!-- Consenso Privacy -->
        <div class="mb-4 form-check">
         <input type="checkbox" class="form-check-input" id="privacy" name="privacy" required>
         <label class="form-check-label" for="privacy">
           Acconsento al trattamento dei miei dati personali secondo la
-          <!-- Replace '#' with your actual privacy policy URL -->
           <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
         </label>
       </div>
 
-      <!-- Articoli e Quantità -->
       <div class="mb-4">
           <label class="form-label">Articoli e quantità</label>
           <div id="items-container">
-              <!-- Initial Item Row (template) -->
               <div class="row g-2 item-row">
                   <div class="col-7">
                       <label for="articolo-1" class="visually-hidden">Articolo</label>
@@ -144,30 +133,24 @@
                       <input type="number" id="quantita-1" name="quantita[]" class="form-control quantita-input" placeholder="Q.tà" required min="1" value="1">
                   </div>
                    <div class="col-2 col-remove-btn">
-                      <!-- Remove button added dynamically for subsequent rows -->
                    </div>
               </div>
-              <!-- More item rows will be added here -->
           </div>
           <button type="button" id="add-item-btn" class="btn btn-secondary btn-sm mt-2">
               <i class="fa-solid fa-plus"></i> Aggiungi un altro articolo
           </button>
       </div>
 
-
-      <!-- Data Consegna -->
       <div class="mb-4">
         <label class="form-label" for="data">Data consegna</label>
         <input type="date" id="data" name="data" class="form-control" required>
       </div>
 
-      <!-- Note -->
       <div class="mb-4">
         <label class="form-label" for="note">Note (Opzionale)</label>
         <textarea id="note" name="note" class="form-control" rows="2" placeholder="Es: ritiro urgente, specificare 'Altro' articolo, preferenze..."></textarea>
       </div>
 
-      <!-- Submit Button -->
       <button type="submit" class="btn btn-primary w-100 py-2">
         <i class="fa-solid fa-calendar-check"></i> Prenota
       </button>
@@ -179,48 +162,41 @@
     // --- Dynamic Item Handling ---
     const itemsContainer = document.getElementById('items-container');
     const addItemBtn = document.getElementById('add-item-btn');
-    let itemCounter = 1; // To keep IDs unique if needed
+    let itemCounter = 1;
 
-    // Function to add remove button
     function addRemoveButton(row) {
         const removeCol = row.querySelector('.col-remove-btn');
-        if (removeCol) { // Check if the column exists
+        if (removeCol) {
              const removeBtn = document.createElement('button');
              removeBtn.type = 'button';
-             removeBtn.innerHTML = '<i class="fa-solid fa-trash-alt"></i>'; // Use Font Awesome icon
+             removeBtn.innerHTML = '<i class="fa-solid fa-trash-alt"></i>';
              removeBtn.className = 'btn btn-danger btn-sm remove-item-btn';
              removeBtn.setAttribute('aria-label', 'Rimuovi articolo');
              removeBtn.addEventListener('click', () => {
                  row.remove();
              });
+             // Clear previous content just in case
+             removeCol.innerHTML = '';
              removeCol.appendChild(removeBtn);
         }
     }
 
-    // Add new item row
     addItemBtn.addEventListener('click', () => {
       itemCounter++;
       const firstItemRow = itemsContainer.querySelector('.item-row');
       const newItemRow = firstItemRow.cloneNode(true);
 
-      // Clear values and update IDs/names in the cloned row
       const newSelect = newItemRow.querySelector('.articolo-select');
       const newQuantity = newItemRow.querySelector('.quantita-input');
 
       newSelect.id = `articolo-${itemCounter}`;
-      newSelect.value = ''; // Reset selection
-      newSelect.selectedIndex = 0; // Ensure placeholder is selected
+      newSelect.value = '';
+      newSelect.selectedIndex = 0;
 
       newQuantity.id = `quantita-${itemCounter}`;
-      newQuantity.value = '1'; // Reset quantity to 1
+      newQuantity.value = '1';
 
-      // Ensure labels point to new IDs (if they weren't visually hidden)
-      // newItemRow.querySelector('label[for^="articolo"]').setAttribute('for', newSelect.id);
-      // newItemRow.querySelector('label[for^="quantita"]').setAttribute('for', newQuantity.id);
-
-      // Add the remove button to the new row
       addRemoveButton(newItemRow);
-
       itemsContainer.appendChild(newItemRow);
     });
 
@@ -231,87 +207,71 @@
     const contattiError = document.getElementById('contatti-error');
 
     frmBooking.addEventListener('submit', e => {
-      // 1. Client-side Validation: Check contacts
       const emailValue = emailInput.value.trim();
       const telefonoValue = telefonoInput.value.trim();
       if (!emailValue && !telefonoValue) {
-        e.preventDefault(); // Stop submission
-        contattiError.style.display = 'block'; // Show error message
-        // Optionally focus the first empty field
+        e.preventDefault();
+        contattiError.style.display = 'block';
         if (!emailValue) emailInput.focus();
         else telefonoInput.focus();
-        return; // Exit handler
+        return;
       } else {
-        contattiError.style.display = 'none'; // Hide error if previously shown
+        contattiError.style.display = 'none';
       }
 
-      // 2. Prevent default only if validation passed *and* we are building payload
       e.preventDefault();
 
-      // 3. Build the JSON payload
       const articoli = [];
       const itemRows = itemsContainer.querySelectorAll('.item-row');
       itemRows.forEach(row => {
         const articoloSelect = row.querySelector('.articolo-select');
         const quantitaInput = row.querySelector('.quantita-input');
         if (articoloSelect.value && quantitaInput.value) {
-           // Convert quantity to number, default to 1 if invalid somehow
            const quantity = parseInt(quantitaInput.value, 10) || 1;
            articoli.push({
              articolo: articoloSelect.value,
-             quantita: quantity > 0 ? quantity : 1 // Ensure positive quantity
+             quantita: quantity > 0 ? quantity : 1
            });
         }
       });
 
       const p = {
         nome:     document.getElementById('nome').value.trim(),
-        email:    emailValue, // Use validated value
-        telefono: telefonoValue, // Use validated value
-        privacy:  document.getElementById('privacy').checked, // Include privacy consent
-        articoli: articoli, // Array of items
+        email:    emailValue,
+        telefono: telefonoValue,
+        privacy:  document.getElementById('privacy').checked,
+        articoli: articoli,
         data:     document.getElementById('data').value,
         note:     document.getElementById('note').value.trim()
       };
 
-      // 4. Put JSON in the hidden input
       document.getElementById('payload').value = JSON.stringify(p);
-
-      // 5. Submit the form programmatically
-      // Log payload for debugging before submit
       console.log("Payload:", document.getElementById('payload').value);
       e.target.submit();
     });
 
-    // Function to reset the form, including dynamic items
     function resetForm() {
-        frmBooking.reset(); // Reset standard fields
-        contattiError.style.display = 'none'; // Hide contact error
-
-        // Remove all item rows except the first one
+        frmBooking.reset();
+        contattiError.style.display = 'none';
         const allItemRows = itemsContainer.querySelectorAll('.item-row');
         for (let i = allItemRows.length - 1; i > 0; i--) {
             allItemRows[i].remove();
         }
-
-        // Reset the first item row explicitly
         const firstRow = itemsContainer.querySelector('.item-row');
         if (firstRow) {
             firstRow.querySelector('.articolo-select').selectedIndex = 0;
             firstRow.querySelector('.quantita-input').value = '1';
-            // Remove its remove button if it somehow got one (shouldn't happen with current logic)
-            const firstRemoveBtn = firstRow.querySelector('.remove-item-btn');
-            if (firstRemoveBtn) firstRemoveBtn.remove();
+            const firstRemoveBtnCol = firstRow.querySelector('.col-remove-btn');
+             if (firstRemoveBtnCol) firstRemoveBtnCol.innerHTML = ''; // Clear remove button column
         }
-        itemCounter = 1; // Reset counter
+        itemCounter = 1;
     }
-
 
     // --- Receive response from web-app ---
     window.addEventListener('message', evt => {
       if (evt.data && evt.data.result === 'success') {
         alert('✅ Prenotazione registrata con successo!');
-        resetForm(); // Use the enhanced reset function
+        resetForm();
       } else if (evt.data && evt.data.result === 'error') {
          alert('⚠️ Si è verificato un errore durante la registrazione della prenotazione: ' + (evt.data.message || 'Dettagli non disponibili.'));
          console.error("Error from Google Apps Script:", evt.data.message);
@@ -319,7 +279,7 @@
     });
 
 
-    // --- P5.js Sketch Logic (Unchanged) ---
+    // --- P5.js Sketch Logic (MODIFIED draw() function) ---
     let particles = [];
     const numParticles = 50;
     let baseColor1 = [255, 204, 0]; // Gold
@@ -334,23 +294,39 @@
         particles.push(new Particle(width * 0.2, height / 2));
       }
       noStroke();
+      // Ensure Montserrat is loaded before trying to use it with BOLD style
+      // (Good practice, though often works without explicit wait)
+      textFont('Montserrat');
     }
 
     function draw() {
       background(canvasBackgroundColor);
+
+      // Draw particles
       for (let particle of particles) {
         particle.update();
         particle.display();
       }
-      textFont('Montserrat');
+
+      // Draw main texts - reset style to NORMAL first
+      textStyle(NORMAL); // Reset style before drawing other text
       textAlign(CENTER, CENTER);
       textSize(40); fill(baseColor1);
       text("Angela", width * 0.6, height * 0.35);
+
       textSize(16); fill(baseColor2);
       text("LAVANDERIA", width * 0.6, height * 0.6);
-      textSize(10); fill(baseColor3);
+
+      // --- MODIFIED PART: Draw services list ---
+      textStyle(BOLD); // Apply BOLD style
+      textSize(12);    // Increased size slightly (was 10)
+      fill(baseColor3); // Keep grey color
       textAlign(LEFT, TOP);
-      text("- Lavaggio ad acqua\n- Lavaggio a secco\n- Stiratura", width * 0.55, height * 0.75);
+      // Adjusted Y position slightly to give more space if needed
+      text("- Lavaggio ad acqua\n- Lavaggio a secco\n- Stiratura", width * 0.55, height * 0.73);
+
+      // Optional: Reset text style if more text follows
+      // textStyle(NORMAL);
     }
 
     class Particle { /* ... (Particle class remains the same) ... */

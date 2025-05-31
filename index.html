@@ -3,28 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lavanderia Angela • Animazione & Prenotazione</title>
-
-  <!-- Bootstrap CSS -->
+  <!-- Flatpickr CSS e JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- Bootstrap, FontAwesome, Google Fonts, P5.js -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <!-- Google Font Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- P5.js Library -->
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
       background: #0d6efd;
-      padding: 1rem; /* Reduced padding slightly for smaller screens */
+      padding: 1rem;
       color: #495057;
-      /* Prevent horizontal scrollbars caused by slight overflows */
       overflow-x: hidden;
     }
-
-    /* Responsive P5 Canvas Container */
     #p5-canvas-container {
       margin-bottom: 2rem;
       text-align: center;
@@ -32,205 +26,198 @@
       padding: 1rem 0;
       border-radius: .5rem;
       box-shadow: 0 4px 10px rgba(0,0,0,.1);
-      /* --- Responsive CSS --- */
-      max-width: 600px; /* Max width like the form */
-      width: 95%; /* Take up most width on smaller screens */
-      /* --- End Responsive CSS --- */
+      max-width: 600px;
+      width: 95%;
       margin-left: auto;
       margin-right: auto;
-      /* Ensure container itself doesn't cause overflow issues */
       box-sizing: border-box;
     }
-
-    /* Make the canvas itself responsive within its container */
     #p5-canvas-container canvas {
-        max-width: 100%; /* Prevent canvas from exceeding container */
-        height: auto;    /* Maintain aspect ratio based on width */
-        display: block;  /* Remove extra space below canvas */
-        margin: 0 auto;  /* Center canvas if container is wider */
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
-
-
     .card-form {
       background: #fff;
-      padding: 1.5rem; /* Slightly reduced padding */
+      padding: 1.5rem;
       border-radius: .5rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
       max-width: 600px;
-      width: 95%; /* Responsive width */
-      margin: 0 auto 2rem auto; /* Center and add bottom margin */
+      width: 95%;
+      margin: 0 auto 2rem auto;
       box-sizing: border-box;
     }
-
     .mb-4 {
-      margin-bottom: 1.25rem !important; /* Slightly reduced margin */
+      margin-bottom: 1.25rem !important;
     }
     .item-row {
-        margin-bottom: 0.75rem !important;
+      margin-bottom: 0.75rem !important;
     }
     .remove-item-btn {
-        padding: 0.3rem 0.6rem;
-        line-height: 1;
+      padding: 0.3rem 0.6rem;
+      line-height: 1;
     }
     .col-remove-btn {
-        display: flex;
-        align-items: flex-end;
-        padding-bottom: 0.375rem;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 0.375rem;
     }
-
     .form-title {
-        color: #212529;
-        font-size: 1.5rem; /* Adjust title size if needed */
+      color: #212529;
+      font-size: 1.5rem;
     }
-
-     /* Adjustments for smaller screens if needed */
+    /* Flatpickr custom colors */
+    .flatpickr-day:not(.flatpickr-disabled):not(.flatpickr-other-month) {
+      background: #e6ffe6;
+      color: #212529;
+      border-radius: 50%;
+    }
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.flatpickr-disabled:hover {
+      background: #ffe6e6 !important;
+      color: #bbb !important;
+      cursor: not-allowed;
+      border-radius: 50%;
+    }
     @media (max-width: 768px) {
-        .form-title {
-            font-size: 1.3rem;
-        }
-        body {
-            padding: 0.5rem; /* Less padding on very small screens */
-        }
-        .card-form {
-             padding: 1rem;
-        }
+      .form-title { font-size: 1.3rem; }
+      body { padding: 0.5rem; }
+      .card-form { padding: 1rem; }
     }
-     @media (max-width: 576px) {
-         /* Stack contact fields on small screens */
-         .row.g-2 > [class*="col-"] {
-             flex: 0 0 100%;
-             max-width: 100%;
-         }
-         .row.g-2 > .col-md-6:first-child {
-             margin-bottom: 0.5rem; /* Add space between stacked fields */
-         }
-     }
-
+    @media (max-width: 576px) {
+      .row.g-2 > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      .row.g-2 > .col-md-6:first-child {
+        margin-bottom: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- P5.js Canvas Container -->
-  <div id="p5-canvas-container">
-    <!-- Canvas will be inserted here by P5.js -->
-  </div>
+  <div id="p5-canvas-container"></div>
 
   <!-- Booking Form Section -->
   <div class="card-form">
-     <h2 class="text-center mb-4 form-title">Prenotazione consegna biancheria</h2>
-     <form id="frmBooking"
-           action="https://script.google.com/macros/s/AKfycbz-nO8TEe1fxVuQtgOSWjzMj4eTZJz2Jw2Y9n9H6iHCl72fJReb6_qSFjrbfS4vG4aXOg/exec"
-           method="post">
-       <input type="hidden" id="payload" name="payload">
+    <h2 class="text-center mb-4 form-title">Prenotazione consegna biancheria</h2>
+    <form id="frmBooking"
+      action="https://script.google.com/macros/s/AKfycbz-nO8TEe1fxVuQtgOSWjzMj4eTZJz2Jw2Y9n9H6iHCl72fJReb6_qSFjrbfS4vG4aXOg/exec"
+      method="post">
+      <input type="hidden" id="payload" name="payload">
 
-       <div class="mb-4">
-         <label class="form-label" for="nome">Nome cliente</label>
-         <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
-       </div>
+      <div class="mb-4">
+        <label class="form-label" for="nome">Nome cliente</label>
+        <input id="nome" name="nome" class="form-control" placeholder="Mario Rossi" required>
+      </div>
 
-       <div class="mb-4">
-         <label class="form-label">Contatti (inserisci almeno E-mail o Telefono)</label>
-         <div class="row g-2">
-           <div class="col-md-6">
-             <label for="email" class="visually-hidden">E-mail</label>
-             <input type="email" id="email" name="email" class="form-control" placeholder="nome@esempio.com">
-           </div>
-           <div class="col-md-6">
-              <label for="telefono" class="visually-hidden">Telefono</label>
-             <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="+39 345 1234567">
-           </div>
-         </div>
-         <div id="contatti-error" class="text-danger mt-1" style="display: none; font-size: 0.875em;">
-           È necessario inserire almeno un'E-mail o un Telefono.
-         </div>
-       </div>
+      <div class="mb-4">
+        <label class="form-label">Contatti (inserisci almeno E-mail o Telefono)</label>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label for="email" class="visually-hidden">E-mail</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="nome@esempio.com">
+          </div>
+          <div class="col-md-6">
+            <label for="telefono" class="visually-hidden">Telefono</label>
+            <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="+39 345 1234567">
+          </div>
+        </div>
+        <div id="contatti-error" class="text-danger mt-1" style="display: none; font-size: 0.875em;">
+          È necessario inserire almeno un'E-mail o un Telefono.
+        </div>
+      </div>
 
-        <div class="mb-4 form-check">
-         <input type="checkbox" class="form-check-input" id="privacy" name="privacy" required>
-         <label class="form-check-label" for="privacy" style="font-size: 0.875em;"> <!-- Slightly smaller privacy text -->
-           Acconsento al trattamento dei miei dati personali secondo la
-           <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-         </label>
-       </div>
+      <div class="mb-4 form-check">
+        <input type="checkbox" class="form-check-input" id="privacy" name="privacy" required>
+        <label class="form-check-label" for="privacy" style="font-size: 0.875em;">
+          Acconsento al trattamento dei miei dati personali secondo la
+          <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </label>
+      </div>
 
-       <div class="mb-4">
-           <label class="form-label">Articoli e quantità</label>
-           <div id="items-container">
-               <div class="row g-2 item-row">
-                   <div class="col-7">
-                       <label for="articolo-1" class="visually-hidden">Articolo</label>
-                       <select id="articolo-1" name="articolo[]" class="form-select articolo-select" required>
-                           <option value="" disabled selected>Scegli articolo…</option>
-                           <option>Piumone</option>
-                           <option>Cappotto</option>
-                           <option>Tovaglia</option>
-                           <option>Lenzuola</option>
-                           <option>Camicia</option>
-                           <option>Pantalone</option>
-                           <option>Altro</option>
-                       </select>
-                   </div>
-                   <div class="col-3">
-                       <label for="quantita-1" class="visually-hidden">Quantità</label>
-                       <input type="number" id="quantita-1" name="quantita[]" class="form-control quantita-input" placeholder="Q.tà" required min="1" value="1">
-                   </div>
-                    <div class="col-2 col-remove-btn">
-                    </div>
-               </div>
-           </div>
-           <button type="button" id="add-item-btn" class="btn btn-secondary btn-sm mt-2">
-               <i class="fa-solid fa-plus"></i> Aggiungi articolo
-           </button>
-       </div>
+      <div class="mb-4">
+        <label class="form-label">Articoli e quantità</label>
+        <div id="items-container">
+          <div class="row g-2 item-row">
+            <div class="col-7">
+              <label for="articolo-1" class="visually-hidden">Articolo</label>
+              <select id="articolo-1" name="articolo[]" class="form-select articolo-select" required>
+                <option value="" disabled selected>Scegli articolo…</option>
+                <option>Piumone</option>
+                <option>Cappotto</option>
+                <option>Tovaglia</option>
+                <option>Lenzuola</option>
+                <option>Camicia</option>
+                <option>Pantalone</option>
+                <option>Altro</option>
+              </select>
+            </div>
+            <div class="col-3">
+              <label for="quantita-1" class="visually-hidden">Quantità</label>
+              <input type="number" id="quantita-1" name="quantita[]" class="form-control quantita-input" placeholder="Q.tà" required min="1" value="1">
+            </div>
+            <div class="col-2 col-remove-btn"></div>
+          </div>
+        </div>
+        <button type="button" id="add-item-btn" class="btn btn-secondary btn-sm mt-2">
+          <i class="fa-solid fa-plus"></i> Aggiungi articolo
+        </button>
+      </div>
 
-       <div class="mb-4">
-         <label class="form-label" for="data">Data consegna</label>
-         <input type="date" id="data" name="data" class="form-control" required>
-       </div>
+      <div class="mb-4">
+        <label class="form-label" for="data">Data consegna</label>
+        <input type="text" id="data" name="data" class="form-control" required>
+      </div>
 
-       <div class="mb-4">
-         <label class="form-label" for="note">Note (Opzionale)</label>
-         <textarea id="note" name="note" class="form-control" rows="2" placeholder="Es: ritiro urgente, specificare 'Altro' articolo, preferenze..."></textarea>
-       </div>
+      <div class="mb-4">
+        <label class="form-label" for="note">Note (Opzionale)</label>
+        <textarea id="note" name="note" class="form-control" rows="2" placeholder="Es: ritiro urgente, specificare 'Altro' articolo, preferenze..."></textarea>
+      </div>
 
-       <button type="submit" class="btn btn-primary w-100 py-2">
-         <i class="fa-solid fa-calendar-check"></i> Prenota
-       </button>
-     </form>
+      <button type="submit" class="btn btn-primary w-100 py-2">
+        <i class="fa-solid fa-calendar-check"></i> Prenota
+      </button>
+    </form>
   </div>
 
-  <!-- Combined JavaScript -->
+  <!-- JavaScript unico -->
   <script>
-    // --- Global Scope Variables ---
-    let particles = [];
-    const numParticles = 50; // Adjusted number for potentially smaller canvas
-    let baseColor1, baseColor2, baseColor3, canvasBackgroundColor;
-    let container; // To store reference to the p5 canvas container
-
     // --- Dynamic Item Handling ---
     const itemsContainer = document.getElementById('items-container');
     const addItemBtn = document.getElementById('add-item-btn');
     let itemCounter = 1;
 
-    function addRemoveButton(row) { /* ... (same as before) ... */
-        const removeCol = row.querySelector('.col-remove-btn');
-        if (removeCol) {
-             const removeBtn = document.createElement('button');
-             removeBtn.type = 'button';
-             removeBtn.innerHTML = '<i class="fa-solid fa-trash-alt"></i>';
-             removeBtn.className = 'btn btn-danger btn-sm remove-item-btn';
-             removeBtn.setAttribute('aria-label', 'Rimuovi articolo');
-             removeBtn.addEventListener('click', () => { row.remove(); });
-             removeCol.innerHTML = ''; removeCol.appendChild(removeBtn);
-        }
+    function addRemoveButton(row) {
+      const removeCol = row.querySelector('.col-remove-btn');
+      if (removeCol) {
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.innerHTML = '<i class="fa-solid fa-trash-alt"></i>';
+        removeBtn.className = 'btn btn-danger btn-sm remove-item-btn';
+        removeBtn.setAttribute('aria-label', 'Rimuovi articolo');
+        removeBtn.addEventListener('click', () => { row.remove(); });
+        removeCol.innerHTML = '';
+        removeCol.appendChild(removeBtn);
+      }
     }
-    addItemBtn.addEventListener('click', () => { /* ... (same as before) ... */
+    addRemoveButton(itemsContainer.querySelector('.item-row'));
+    addItemBtn.addEventListener('click', () => {
       itemCounter++;
-      const firstItemRow = itemsContainer.querySelector('.item-row'); const newItemRow = firstItemRow.cloneNode(true);
-      const newSelect = newItemRow.querySelector('.articolo-select'); const newQuantity = newItemRow.querySelector('.quantita-input');
-      newSelect.id = `articolo-${itemCounter}`; newSelect.value = ''; newSelect.selectedIndex = 0;
-      newQuantity.id = `quantita-${itemCounter}`; newQuantity.value = '1';
-      addRemoveButton(newItemRow); itemsContainer.appendChild(newItemRow);
+      const firstItemRow = itemsContainer.querySelector('.item-row');
+      const newItemRow = firstItemRow.cloneNode(true);
+      const newSelect = newItemRow.querySelector('.articolo-select');
+      const newQuantity = newItemRow.querySelector('.quantita-input');
+      newSelect.id = `articolo-${itemCounter}`;
+      newSelect.value = '';
+      newSelect.selectedIndex = 0;
+      newQuantity.id = `quantita-${itemCounter}`;
+      newQuantity.value = '1';
+      addRemoveButton(newItemRow);
+      itemsContainer.appendChild(newItemRow);
     });
 
     // --- Form Submission Logic ---
@@ -239,147 +226,170 @@
     const telefonoInput = document.getElementById('telefono');
     const contattiError = document.getElementById('contatti-error');
 
-    frmBooking.addEventListener('submit', e => { /* ... (same validation and payload logic as before) ... */
-      const emailValue = emailInput.value.trim(); const telefonoValue = telefonoInput.value.trim();
-      if (!emailValue && !telefonoValue) { e.preventDefault(); contattiError.style.display = 'block'; if (!emailValue) emailInput.focus(); else telefonoInput.focus(); return; } else { contattiError.style.display = 'none'; }
-      e.preventDefault();
-      const articoli = []; const itemRows = itemsContainer.querySelectorAll('.item-row');
-      itemRows.forEach(row => { const articoloSelect = row.querySelector('.articolo-select'); const quantitaInput = row.querySelector('.quantita-input'); if (articoloSelect.value && quantitaInput.value) { const quantity = parseInt(quantitaInput.value, 10) || 1; articoli.push({ articolo: articoloSelect.value, quantita: quantity > 0 ? quantity : 1 }); } });
-      const p = { nome: document.getElementById('nome').value.trim(), email: emailValue, telefono: telefonoValue, privacy: document.getElementById('privacy').checked, articoli: articoli, data: document.getElementById('data').value, note: document.getElementById('note').value.trim() };
-      document.getElementById('payload').value = JSON.stringify(p); console.log("Payload:", document.getElementById('payload').value); e.target.submit();
+    frmBooking.addEventListener('submit', e => {
+      const emailValue = emailInput.value.trim();
+      const telefonoValue = telefonoInput.value.trim();
+      if (!emailValue && !telefonoValue) {
+        contattiError.style.display = 'block';
+        if (!emailValue) emailInput.focus();
+        else telefonoInput.focus();
+        e.preventDefault();
+        return;
+      } else {
+        contattiError.style.display = 'none';
+      }
+      const articoli = [];
+      const itemRows = itemsContainer.querySelectorAll('.item-row');
+      itemRows.forEach(row => {
+        const articoloSelect = row.querySelector('.articolo-select');
+        const quantitaInput = row.querySelector('.quantita-input');
+        if (articoloSelect.value && quantitaInput.value) {
+          const quantity = (!isNaN(quantitaInput.value) && parseInt(quantitaInput.value, 10) > 0) 
+            ? parseInt(quantitaInput.value, 10) 
+            : 1;
+          articoli.push({ articolo: articoloSelect.value, quantita: quantity });
+        }
+      });
+      const p = {
+        nome: document.getElementById('nome').value.trim(),
+        email: emailValue,
+        telefono: telefonoValue,
+        privacy: document.getElementById('privacy').checked,
+        articoli: articoli,
+        data: document.getElementById('data').value,
+        note: document.getElementById('note').value.trim()
+      };
+      document.getElementById('payload').value = JSON.stringify(p);
+      console.log("Payload:", document.getElementById('payload').value);
+      e.target.submit();
     });
 
-    function resetForm() { /* ... (same as before) ... */
-        frmBooking.reset(); contattiError.style.display = 'none';
-        const allItemRows = itemsContainer.querySelectorAll('.item-row'); for (let i = allItemRows.length - 1; i > 0; i--) { allItemRows[i].remove(); }
-        const firstRow = itemsContainer.querySelector('.item-row'); if (firstRow) { firstRow.querySelector('.articolo-select').selectedIndex = 0; firstRow.querySelector('.quantita-input').value = '1'; const firstRemoveBtnCol = firstRow.querySelector('.col-remove-btn'); if (firstRemoveBtnCol) firstRemoveBtnCol.innerHTML = ''; } itemCounter = 1;
+    function resetForm() {
+      frmBooking.reset();
+      contattiError.style.display = 'none';
+      const allItemRows = itemsContainer.querySelectorAll('.item-row');
+      for (let i = allItemRows.length - 1; i > 0; i--) {
+        allItemRows[i].remove();
+      }
+      const firstRow = itemsContainer.querySelector('.item-row');
+      if (firstRow) {
+        firstRow.querySelector('.articolo-select').selectedIndex = 0;
+        firstRow.querySelector('.quantita-input').value = '1';
+        const firstRemoveBtnCol = firstRow.querySelector('.col-remove-btn');
+        if (firstRemoveBtnCol) firstRemoveBtnCol.innerHTML = '';
+      }
+      itemCounter = 1;
     }
 
     // --- Receive response from web-app ---
-    window.addEventListener('message', evt => { /* ... (same as before) ... */
-      if (evt.data && evt.data.result === 'success') { alert('✅ Prenotazione registrata con successo!'); resetForm(); } else if (evt.data && evt.data.result === 'error') { alert('⚠️ Si è verificato un errore durante la registrazione della prenotazione: ' + (evt.data.message || 'Dettagli non disponibili.')); console.error("Error from Google Apps Script:", evt.data.message); }
+    window.addEventListener('message', evt => {
+      if (evt.data && evt.data.result === 'success') {
+        alert('✅ Prenotazione registrata con successo!');
+        resetForm();
+      } else if (evt.data && evt.data.result === 'error') {
+        alert('⚠️ Si è verificato un errore durante la registrazione della prenotazione: ' + (evt.data.message || 'Dettagli non disponibili.'));
+        console.error("Error from Google Apps Script:", evt.data.message);
+      }
+    });
+    function isDateAvailable(date, startOffset, numDays) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() + startOffset);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + numDays);
+      return date >= startDate && date < endDate;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      flatpickr("#data", {
+        dateFormat: "Y-m-d",
+        enable: [
+          function(date) {
+            return isDateAvailable(date, 5, 30);
+          }
+        ],
+        locale: "it"
+      });
     });
 
-
-    // --- P5.js Sketch Logic (MODIFIED setup() and added windowResized()) ---
-
+    // --- P5.js Sketch Logic ---
+    let particles = [];
+    const numParticles = 50;
+    let baseColor1, baseColor2, baseColor3, canvasBackgroundColor;
+    let container;
     function setup() {
-      // Select the container div using p5's select()
       container = select('#p5-canvas-container');
-
-      // Calculate initial canvas dimensions based on container width
-      // Use container.width which gets the computed width
       let canvasWidth = container.width;
-       // Maintain aspect ratio (original was 600x150 -> 4:1)
       let canvasHeight = canvasWidth / 4;
-
-      // Create canvas with calculated dimensions
       let canvas = createCanvas(canvasWidth, canvasHeight);
-      canvas.parent('p5-canvas-container'); // Attach it to the container
-
-      // Define colors (can be done here or globally)
-      baseColor1 = color(255, 204, 0); // Gold
-      baseColor2 = color(13, 110, 253); // Bootstrap primary blue
-      baseColor3 = color(108, 117, 125); // Bootstrap secondary grey
+      canvas.parent('p5-canvas-container');
+      baseColor1 = color(255, 204, 0);
+      baseColor2 = color(13, 110, 253);
+      baseColor3 = color(108, 117, 125);
       canvasBackgroundColor = color(240, 240, 240);
-
-      // Initialize particles *after* canvas is created
-      particles = []; // Clear existing if any (e.g., on resize)
+      particles = [];
       for (let i = 0; i < numParticles; i++) {
-        // Adjust initial position slightly if needed, relative to new width/height
-        particles.push(new Particle(width * 0.25, height / 2)); // Centered particle area more
+        particles.push(new Particle(width * 0.25, height / 2));
       }
-
       noStroke();
       textFont('Montserrat');
     }
-
     function draw() {
       background(canvasBackgroundColor);
-
-      // Update and display particles
       for (let particle of particles) {
         particle.update();
         particle.display();
       }
-
-      // Draw Texts (adjust sizes/positions slightly for responsiveness)
       textStyle(NORMAL);
       textAlign(CENTER, CENTER);
-      // Scale text size based on canvas width (example)
-      let angelaSize = min(40, width / 15); // Max 40px, scales down
-      let lavanderiaSize = min(16, width / 35); // Max 16px, scales down
-      let servicesSize = min(12, width / 48); // Max 12px, scales down
-
+      let angelaSize = min(40, width / 15);
+      let lavanderiaSize = min(16, width / 35);
+      let servicesSize = min(12, width / 48);
       textSize(angelaSize); fill(baseColor1);
-      text("Angela", width * 0.6, height * 0.35); // Position relative to width/height
-
+      text("Angela", width * 0.6, height * 0.35);
       textSize(lavanderiaSize); fill(baseColor2);
-      text("LAVANDERIA", width * 0.6, height * 0.6); // Position relative to width/height
-
+      text("LAVANDERIA", width * 0.6, height * 0.6);
       textStyle(BOLD);
       textSize(servicesSize); fill(baseColor3);
       textAlign(LEFT, TOP);
-      // Keep relative positioning
       text("- Lavaggio ad acqua\n- Lavaggio a secco\n- Stiratura", width * 0.55, height * 0.73);
     }
-
-    // --- Function called by p5 when window is resized ---
     function windowResized() {
-        // Get the new width of the container
-        let newWidth = container.width;
-        // Calculate new height based on aspect ratio
-        let newHeight = newWidth / 4;
-        // Resize the p5 canvas
-        resizeCanvas(newWidth, newHeight);
-
-        // Optional: Re-initialize particles if their starting point depends heavily on initial size
-        // particles = []; // Clear existing
-        // for (let i = 0; i < numParticles; i++) {
-        //    particles.push(new Particle(width * 0.25, height / 2));
-        // }
-        // Usually not needed if update/display use current width/height
+      let newWidth = container.width;
+      let newHeight = newWidth / 4;
+      resizeCanvas(newWidth, newHeight);
     }
-
-
-    // Particle class (Adjusted initial position in setup)
     class Particle {
-        constructor(x, y) {
-            this.pos = createVector(x, y);
-            this.angle = random(TWO_PI);
-            // Scale radius/size slightly based on initial canvas size? Optional.
-            let sizeFactor = min(1, width/600); // Scale factor based on initial width vs 600
-            this.radius = random(15, 40) * sizeFactor;
-            this.speed = random(0.01, 0.03);
-            this.size = random(4, 8) * sizeFactor;
-            this.randomizeColor();
-        }
-        update() {
-            this.angle += this.speed;
-            // Use current width/height for positioning
-            this.pos.x = width * 0.25 + cos(this.angle) * this.radius;
-            this.pos.y = height / 2 + sin(this.angle) * this.radius;
-        }
-        display() { fill(this.color); ellipse(this.pos.x, this.pos.y, this.size, this.size); }
-        randomizeColor() { let rand = floor(random(3)); if (rand == 0) { this.color = color(baseColor1.levels[0], baseColor1.levels[1], baseColor1.levels[2], 180); } else if (rand == 1) { this.color = color(baseColor2.levels[0], baseColor2.levels[1], baseColor2.levels[2], 180); } else { this.color = color(baseColor3.levels[0], baseColor3.levels[1], baseColor3.levels[2], 180); } }
+      constructor(x, y) {
+        this.pos = createVector(x, y);
+        this.angle = random(TWO_PI);
+        let sizeFactor = min(1, width/600);
+        this.radius = random(15, 40) * sizeFactor;
+        this.speed = random(0.01, 0.03);
+        this.size = random(4, 8) * sizeFactor;
+        this.randomizeColor();
+      }
+      update() {
+        this.angle += this.speed;
+        this.pos.x = width * 0.25 + cos(this.angle) * this.radius;
+        this.pos.y = height / 2 + sin(this.angle) * this.radius;
+      }
+      display() { fill(this.color); ellipse(this.pos.x, this.pos.y, this.size, this.size); }
+      randomizeColor() {
+        let rand = floor(random(3));
+        if (rand == 0) { this.color = color(baseColor1.levels[0], baseColor1.levels[1], baseColor1.levels[2], 180); }
+        else if (rand == 1) { this.color = color(baseColor2.levels[0], baseColor2.levels[1], baseColor2.levels[2], 180); }
+        else { this.color = color(baseColor3.levels[0], baseColor3.levels[1], baseColor3.levels[2], 180); }
+      }
     }
-
-    // Mouse interaction (no changes needed)
-    // let canvasContainer = document.getElementById('p5-canvas-container'); // This is redundant if using container variable
-    if (container) {
-        container.elt.addEventListener('mousemove', () => { // Access the DOM element via .elt
-             for (let particle of particles) {
-                 particle.randomizeColor();
-            }
-         });
-     } else { // Fallback if container wasn't selected immediately
-         let canvasContainerEl = document.getElementById('p5-canvas-container');
-         if(canvasContainerEl) {
-            canvasContainerEl.addEventListener('mousemove', () => { for (let particle of particles) { particle.randomizeColor(); } });
-         }
-     }
-
+    document.addEventListener('DOMContentLoaded', function() {
+      let canvasContainerEl = document.getElementById('p5-canvas-container');
+      if(canvasContainerEl) {
+        canvasContainerEl.addEventListener('mousemove', () => {
+          for (let particle of particles) { particle.randomizeColor(); }
+        });
+      }
+    });
   </script>
-
 </body>
 </html>
